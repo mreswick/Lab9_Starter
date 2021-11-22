@@ -47,6 +47,14 @@
       width: 122px;
     }
   </style>
+
+<script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+<script>
+  window.TrackJS && TrackJS.install({ 
+    token: "5b407c41247d4845b41c05e077854857"
+    // for more configuration options, see https://docs.trackjs.com
+  });
+</script>   
 </head>
 
 <body>
@@ -69,7 +77,7 @@
     </form>
 
     <section id="error-btns">
-      <button>Console Log</button>
+      <button >Console Log</button>
       <button>Console Error</button>
       <button>Console Count</button>
       <button>Console Warn</button>
@@ -87,7 +95,17 @@
     </section>
   </main>
 
+
+
   <script>
+    class InputDataError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = "InputDataError";
+        console.log("New InputDataError object constructed.");
+      }
+    }
+
     let form = document.querySelector('form');
     form.addEventListener('submit', e => {
       e.preventDefault();
@@ -95,13 +113,117 @@
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
+
+      try{
+        if(typeof(firstNum) != "number") {
+          throw new InputDataError("first number is not a number.");
+        } 
+      } catch(error) {
+        console.log("First number error: ");
+        console.log(error.message);
+      } finally {
+        console.log("After checking first number inputted.");
+      }
+
+      try {
+        try {
+          console.log("Attempting to use properties to print value of first number: ");
+          console.log(firstNum.value.print);
+        } catch(error) {
+          console.log("ERROR: ");
+          console.log(error.msg);
+          throw new ReferenceError("no such property");
+        }
+      } catch(error) {
+        console.log(error.name + " thrown.");
+        console.log(error.message);
+      }
+
+      window.onerror = function(msg, url, lineNo, columnNo, error) {
+        console.log("In window.onerror event handler function.");
+        console.log(msg);
+        console.log("Line number: " + lineNo + "; " + "col number: " + columnNo + ". ");
+        console.log("Sending error to TrackJS.");
+        TrackJS.track(error);
+      };
+      
       output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+     
     });
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
 
     // Start your code here
     // You may move this JS to another file if you wish
+    errorBtns[0].addEventListener("click", e => {
+      console.log("Console log button clicked.");
+    });
+    errorBtns[1].addEventListener("click", e => {
+      console.error("Sorry, you clicked the error button.");
+    });
+    errorBtns[2].addEventListener("click",e => {
+      console.count('called: ');
+    });
+    errorBtns[3].addEventListener("click", e => {
+      console.warn("WARNING: You clicked this button.");
+    })
+    errorBtns[4].addEventListener("click", e => {
+      let a = 2;
+      let b = 3;
+      console.assert(a == b, "2 shouldn't be equal to 3");
+    });
+    errorBtns[5].addEventListener("click", e => {
+      console.clear();
+    });
+    errorBtns[6].addEventListener("click", e => {
+      console.dir(errorBtns[6]);
+    });
+    errorBtns[7].addEventListener("click", e => {
+      console.dirxml(errorBtns[7]);
+    });
+    errorBtns[8].addEventListener("click", e => {
+      console.group("Here's a group.");
+    });
+    errorBtns[9].addEventListener("click", e => {
+      console.groupEnd("Here's a group.");
+    });
+    errorBtns[10].addEventListener("click", e => {
+      console.table([
+        {
+          color: "blue",
+          smell: "sour",
+        },
+        {
+          color: "red",
+          smell: "trashy",
+        },
+        {
+          color: "orange",
+          smell: "sweet",
+        }
+      ]);
+    });
+    errorBtns[11].addEventListener("click", e => {
+      console.time("timer1");
+    });
+    errorBtns[12].addEventListener("click", e => {
+      console.timeEnd("timer1");
+    });
+    errorBtns[13].addEventListener("click", e => {
+      console.trace();
+    })
+    errorBtns[14].addEventListener("click", e => {
+      // generate global error and report with window.onerror:
+      window.onerror = function(msg, url, lineNo, columnNo, error) {
+      console.log("Error.");
+      console.log("In window.onerror event handler function.");
+      console.log(msg);
+      console.log("Line number: " + lineNo + "; " + "col number: " + columnNo + ". ");
+    }
+      c = JSON.parse(5/0 * "Hello");
+      console.log(c);
+    })
+
   </script>
 </body>
 
